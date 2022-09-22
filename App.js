@@ -16,6 +16,26 @@ This is a list item 2
 </ul>`.trim();
 
 
+/**
+ * Trims raw text nodes
+ * 
+ * @param {*} param0 
+ * @returns 
+ */
+const RawText = ({ domNode }) => {
+  return domNode.data.trim();
+}
+
+RawText.defaultProps = {
+  /**
+   * Catches any non-orphans and non-empty text fields
+   * 
+   * @param {*} node 
+   * @returns 
+   */
+  test: (node) => node.type === 'text' && node.parent !== null && node.data?.trim().length >= 0
+}
+
 const ParagraphBlock = ({ children }) => {
   return <Text>[Text Component]{children}[Text Component]</Text>
 };
@@ -25,7 +45,7 @@ const ListWrapperBlock = ({ children }) => {
 }
 
 const ListItemWrapperBlock = ({ children }) => {
-  return <Text>[React Native List Item]{typeof children === 'string' ? children.trim() : children}[React Native List Item]</Text>
+  return <Text>[React Native List Item]{children}[React Native List Item]</Text>
 }
 
 /**
@@ -37,8 +57,9 @@ const ListItemWrapperBlock = ({ children }) => {
  * @returns 
  */
 const FlatListBlock = ({ children }) => {
-  const items = children.filter((node) => node?.type === 'li').map(child => child.props.children.trim());
-
+  // note: at this point children has already recursively gone through the "dom-to-react" conversion
+  const items = children.filter((node) => node.type === 'li').map(child => { return child.props.children; });
+  
   const renderItem = ({ item }) => {
     return (
       <Text>{item}</Text>
@@ -74,6 +95,7 @@ export default function App() {
       <StatusBar style="auto" />
       <Text style={styles.heading}>Example 1</Text>
       <BlocksRenderer html={mockWordPressPostContentResponse}>
+        <RawText />
         <ParagraphBlock test={(node) => isBlockByName(node, 'core/paragraph')} />
         <ListWrapperBlock test={(node) => isBlockByName(node, 'core/list')} />
         <ListItemWrapperBlock test={(node) => isBlockByName(node, 'core/list-item')} />
@@ -83,6 +105,7 @@ export default function App() {
       <Text style={styles.heading}>Example 2</Text>
 
       <BlocksRenderer html={mockWordPressPostContentResponse}>
+        <RawText />
         <ParagraphBlock test={(node) => isBlockByName(node, 'core/paragraph')} />
         {/* A more complex block to render a web list into a flat list component */}
         <FlatListBlock test={(node) => isBlockByName(node, 'core/list')} />
