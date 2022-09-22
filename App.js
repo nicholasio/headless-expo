@@ -13,7 +13,7 @@ This is a list item 1
 <li data-wp-block-name='core/list-item'>
 This is a list item 2
 </li>
-</ul>`.trim();
+</ul>`;
 
 
 /**
